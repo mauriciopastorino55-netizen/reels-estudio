@@ -2066,7 +2066,23 @@
     });
 
     if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-      navigator.serviceWorker.register("./sw.js").catch(() => {});
+      navigator.serviceWorker.register("./sw.js").then((reg) => {
+        reg.update().catch(() => {});
+      }).catch(() => {});
+    }
+
+    async function refreshCatalogFromNetwork() {
+      if (!location.protocol.startsWith("http")) return;
+      try {
+        const resp = await fetch("./biblioteca/catalog.json?t=" + Date.now(), { cache: "no-store" });
+        if (!resp.ok) return;
+        const fresh = await resp.json();
+        if (fresh && (Array.isArray(fresh.folders) || Array.isArray(fresh.videos))) {
+          window.REELS_CATALOG = fresh;
+          ingestCatalogTree();
+          renderHome();
+        }
+      } catch {}
     }
 
     (async () => {
@@ -2074,6 +2090,7 @@
       ingestCatalogTree();
       try { localItems = await idbGetAll(); } catch {}
       renderHome();
+      refreshCatalogFromNetwork();
     })();
   </script>
 </body>
