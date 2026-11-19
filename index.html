@@ -1,0 +1,2080 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0c1018" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Reels Estudio</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <style>
+    :root {
+      --outer-bg: #05070b;
+      --bg: #090b10;
+      --bg-grad: radial-gradient(circle at 50% 34%, #182235 0%, #0c1018 72%);
+      --surface: #121622;
+      --surface-2: #191f30;
+      --border: rgba(255, 255, 255, 0.10);
+      --ink: #eef2ff;
+      --text: #eef2ff;
+      --ink-soft: #8b95b0;
+      --muted: #8b95b0;
+      --accent: #7c5cff;
+      --accent-2: #22d3ee;
+      --gold: #e6b85c;
+      --gold-soft: rgba(230, 184, 92, 0.14);
+      --teal: #62b8a8;
+      --crimson: #e06c75;
+      --pill-bg: rgba(20, 27, 40, 0.90);
+      --pill-ink: #f7f4ec;
+      --pill-border: rgba(242, 238, 230, 0.15);
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --sub-size: 24px;
+      --slide-dur: 0.24s;
+    }
+
+    html[data-theme="light"] {
+      --outer-bg: #15181e;
+      --bg: #f5f1e8;
+      --bg-grad: radial-gradient(circle at 50% 42%, #faf7f0 0%, #efe9dc 80%);
+      --surface: #ece6d8;
+      --surface-2: #e3dccb;
+      --border: rgba(30, 36, 43, 0.12);
+      --ink: #1d232a;
+      --text: #1d232a;
+      --ink-soft: #57606b;
+      --muted: #57606b;
+      --accent: #5b45d6;
+      --accent-2: #0e8fa6;
+      --gold: #b57c1c;
+      --gold-soft: rgba(181, 124, 28, 0.14);
+      --teal: #275866;
+      --crimson: #a83c45;
+      --pill-bg: rgba(226, 222, 213, 0.94);
+      --pill-ink: #16181c;
+      --pill-border: rgba(30, 36, 43, 0.10);
+      --card-bg: rgba(255, 253, 248, 0.72);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: var(--outer-bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    }
+
+    .view-hidden { display: none !important; }
+    .hidden { display: none !important; }
+
+    /* =========================================================
+       VISTA INICIO — PORTADA DIRECTAMENTE DE FLASHCARDS ESTUDIO PWA
+       ========================================================= */
+    .home-view {
+      width: 100%;
+      height: 100dvh;
+      max-width: 560px;
+      margin: 0 auto;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom));
+      gap: 14px;
+      transition: transform var(--slide-dur) cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+    }
+
+    .home-view.slide-out-left { transform: translateX(-104%); opacity: 0; }
+    .home-view.slide-out-right { transform: translateX(104%); opacity: 0; }
+    .home-view.slide-in-prep-left { transform: translateX(-104%); opacity: 0; transition: none !important; }
+    .home-view.slide-in-prep-right { transform: translateX(104%); opacity: 0; transition: none !important; }
+
+    .home-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .home-title-wrap { min-width: 0; flex: 1; }
+    .home-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .home-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .btn-icon {
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 8px 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    html[data-theme="light"] .btn-icon { border-color: var(--border); }
+
+    /* Menú ⋮ de carpeta (Renombrar / Borrar) — idéntico a Flashcards */
+    .folder-menu-wrap { position: relative; }
+    .folder-menu-popover {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 6px);
+      min-width: 152px;
+      padding: 6px;
+      border-radius: 14px;
+      background: var(--surface-2);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.55);
+      z-index: 40;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .folder-menu-wrap.open .folder-menu-popover { display: flex; }
+    .folder-menu-item {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .folder-menu-item:active, .folder-menu-item:hover { background: rgba(255, 255, 255, 0.08); }
+    .folder-menu-item.is-danger { color: #ff8fa3; }
+    .folder-menu-item.is-danger:active, .folder-menu-item.is-danger:hover { background: rgba(255, 80, 100, 0.14); }
+
+    /* Breadcrumb clickeable — idéntico a Flashcards */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-top: -6px;
+      flex-shrink: 0;
+    }
+    .crumb-btn {
+      background: none;
+      border: none;
+      padding: 2px 4px;
+      color: var(--accent-2);
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .crumb-current { color: var(--text); font-weight: 600; padding: 2px 4px; }
+
+    /* Fila de 2 botones principales — idéntica a Flashcards */
+    .home-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .btn-upload {
+      flex: 1;
+      text-align: center;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 13px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-folder-new {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: var(--text);
+      border-radius: 13px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    html[data-theme="light"] .btn-folder-new { background: var(--surface); border-color: var(--border); }
+
+    .deck-list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-bottom: 18px;
+    }
+
+    /* Carpeta — idéntica a Flashcards */
+    .folder-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 15px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s ease, transform 0.12s ease;
+    }
+    html[data-theme="light"] .folder-row { background: var(--surface); border-color: var(--border); }
+    .folder-row:active { transform: scale(0.99); background: rgba(255, 255, 255, 0.08); }
+    .folder-name { font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .folder-arrow { font-size: 19px; color: var(--muted); flex-shrink: 0; }
+
+    /* Item de video — misma estructura .deck-item con Mover / Borrar */
+    .deck-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 13px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    html[data-theme="light"] .deck-item { background: var(--surface); border-color: var(--border); }
+    .deck-item.active {
+      border-color: var(--accent-2);
+      background: color-mix(in srgb, var(--accent-2) 14%, rgba(255,255,255,0.04));
+    }
+
+    .video-thumb {
+      width: 44px; height: 58px; border-radius: 8px; object-fit: cover; flex-shrink: 0;
+      background: #0a0f18; border: 1px solid var(--border);
+    }
+    .video-thumb-mp4 {
+      width: 44px; height: 58px; border-radius: 8px; flex-shrink: 0;
+      background: linear-gradient(145deg, rgba(98,184,168,0.22), rgba(20,27,40,0.95));
+      border: 1px solid rgba(98,184,168,0.35);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px; color: var(--teal); font-size: 9.5px; font-weight: 800; letter-spacing: 0.06em;
+    }
+
+    .deck-info { min-width: 0; flex: 1; }
+    .deck-name { font-size: 15.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .deck-meta { font-size: 12.5px; color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .deck-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+    .btn-mini {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 7px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    html[data-theme="light"] .btn-mini { background: var(--surface-2); border-color: var(--border); }
+
+    .btn-del {
+      background: rgba(255, 80, 100, 0.16);
+      border: 1px solid rgba(255, 80, 100, 0.35);
+      color: #ff8fa3;
+      border-radius: 10px;
+      padding: 7px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    html[data-theme="light"] .btn-del { color: #b82b44; }
+
+    .empty-state {
+      text-align: center;
+      padding: 28px 16px;
+      color: var(--muted);
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Modal Carpetas / Renombrar / Mover — idéntico a Flashcards */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    .modal-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+    .modal-title { font-size: 16px; font-weight: 700; }
+    .modal-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 12px;
+      padding: 11px 12px;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      user-select: text;
+    }
+    html[data-theme="light"] .modal-input { background: var(--bg); border-color: var(--border); }
+    .modal-input:focus { border-color: var(--accent-2); }
+    .modal-list { display: flex; flex-direction: column; gap: 8px; max-height: 44dvh; overflow-y: auto; }
+    .modal-opt {
+      width: 100%;
+      text-align: left;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .modal-opt.selected {
+      border-color: var(--accent-2);
+      background: color-mix(in srgb, var(--accent-2) 15%, rgba(255,255,255,0.04));
+    }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+      border: none;
+      color: #ffffff;
+      border-radius: 12px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(16px);
+      background: var(--surface-2); border: 1px solid var(--gold); color: var(--text);
+      font-size: 13px; font-weight: 600; padding: 10px 18px; border-radius: 99px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5); opacity: 0; pointer-events: none; z-index: 200;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* =========================================================
+       VISTA FEED VERTICAL TIPO TIKTOK (MIXTO: REELS + MP4)
+       ========================================================= */
+    .feed-view {
+      position: relative; width: 100%; height: 100dvh;
+      display: flex; align-items: center; justify-content: center; background: var(--outer-bg);
+    }
+    .reel-shell {
+      position: relative;
+      width: min(100vw, calc(100dvh * 9 / 16));
+      height: min(100dvh, calc(100vw * 16 / 9));
+      background: var(--outer-bg);
+      overflow: hidden;
+      border-radius: 18px;
+      box-shadow: 0 28px 90px rgba(0, 0, 0, 0.78);
+      touch-action: none;
+      transition: transform var(--slide-dur) cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+    }
+    .reel-shell.slide-in-prep-right { transform: translateX(104%); opacity: 0; transition: none !important; }
+    @media (max-width: 540px) {
+      .reel-shell { width: 100vw; height: 100dvh; border-radius: 0; box-shadow: none; }
+    }
+
+    .reel-card-layer { position: absolute; inset: 0; background: var(--bg-grad); overflow: hidden; will-change: transform; }
+    #reelCurrent { z-index: 10; }
+    #reelPeek { z-index: 11; display: none; pointer-events: none; }
+
+    .grain-layer {
+      position: absolute; inset: 0; pointer-events: none; z-index: 1; opacity: 0.32;
+      background-image:
+        radial-gradient(rgba(230, 184, 92, 0.08) 1px, transparent 0),
+        radial-gradient(rgba(130, 170, 220, 0.06) 1px, transparent 0);
+      background-size: 28px 28px, 44px 44px; background-position: 0 0, 14px 18px;
+    }
+
+    .mp4-stage { position: absolute; inset: 0; z-index: 6; background: #000; display: flex; align-items: center; justify-content: center; }
+    .mp4-video { width: 100%; height: 100%; object-fit: contain; display: block; }
+    .mp4-peek-card {
+      position: absolute; inset: 0; z-index: 6;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; padding: 30px; text-align: center; background: var(--bg-grad);
+    }
+
+    .feed-hud-top {
+      position: absolute; top: max(12px, env(safe-area-inset-top)); left: 14px; right: 14px;
+      z-index: 45; display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; pointer-events: none;
+    }
+    .hud-group { display: flex; align-items: center; gap: 6px; pointer-events: auto; }
+    .hud-btn {
+      height: 34px; min-width: 34px; padding: 0 10px; border-radius: 99px;
+      border: 1px solid var(--border); background: rgba(12, 16, 24, 0.56);
+      backdrop-filter: blur(8px); color: #f2eee6; font-size: 12.5px; font-weight: 700;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    }
+    html[data-theme="light"] .hud-btn { background: rgba(245, 241, 232, 0.82); color: #1d232a; }
+    .hud-author {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+      color: var(--ink); background: rgba(12, 16, 24, 0.45); padding: 6px 11px;
+      border-radius: 99px; backdrop-filter: blur(6px);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 185px;
+    }
+    html[data-theme="light"] .hud-author { background: rgba(245, 241, 232, 0.78); }
+
+    .status-pill {
+      position: absolute; top: calc(max(12px, env(safe-area-inset-top)) + 42px); left: 50%;
+      transform: translateX(-50%) translateY(-4px); z-index: 46;
+      padding: 5px 13px; border-radius: 99px;
+      background: rgba(12, 16, 24, 0.78); border: 1px solid rgba(230, 184, 92, 0.45);
+      color: var(--gold); font-size: 12px; font-weight: 700; letter-spacing: 0.05em;
+      pointer-events: none; opacity: 0; transition: opacity 0.16s ease, transform 0.16s ease;
+    }
+    .status-pill.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Plantillas de escena (7 tipos) */
+    .scene {
+      position: absolute; inset: 0; z-index: 5;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 66px 20px 146px; opacity: 0; transform: translateY(18px) scale(0.985);
+      pointer-events: none;
+      transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1), transform 0.62s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .scene.active { opacity: 1; transform: translateY(0) scale(1); }
+    .scene.exiting { opacity: 0; transform: translateY(-18px) scale(0.985); }
+    .scene-title { font-size: 24px; font-weight: 750; color: var(--ink); letter-spacing: -0.015em; text-align: center; margin-bottom: 18px; }
+    .scene-title span { color: var(--gold); }
+
+    .poster-wrap {
+      position: relative; width: 90%; aspect-ratio: 3 / 4; border-radius: 10px;
+      box-shadow: -3px -3px 0 0 rgba(98, 184, 168, 0.52), 3px 3px 0 0 rgba(230, 184, 92, 0.52), 0 20px 50px rgba(0, 0, 0, 0.52);
+      overflow: hidden; background: #0a0f18;
+    }
+    .poster-img { width: 100%; height: 100%; object-fit: cover; display: block; transform: scale(1.0); transition: transform 8s ease-out; }
+    .scene.active .poster-img { transform: scale(1.08); }
+    .poster-badge {
+      position: absolute; top: 14px; left: 50%; transform: translateX(-50%) translateY(-8px);
+      background: rgba(12, 16, 24, 0.86); border: 1px solid rgba(230, 184, 92, 0.45); color: #f2eee6;
+      padding: 8px 16px; border-radius: 99px; text-align: center; white-space: nowrap;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45); opacity: 0; transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .poster-badge.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .poster-badge strong { display: block; font-family: Georgia, serif; font-size: 17px; color: #e6b85c; }
+    .poster-badge small { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #b7c2d4; }
+
+    .duo-stage { width: 100%; display: grid; grid-template-columns: 1fr 42px 1fr; align-items: center; gap: 4px; margin: 6px 0 16px; }
+    .actor {
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      opacity: 0; transform: translateY(15px) scale(0.92);
+      transition: opacity 0.55s ease, transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), filter 0.45s ease;
+    }
+    .actor.show { opacity: 1; transform: translateY(0) scale(1); }
+    .actor.dimmed { opacity: 0.44; transform: scale(0.92); filter: saturate(0.5); }
+    .actor.converge-left { transform: translateX(14px) scale(1.04); }
+    .actor.converge-right { transform: translateX(-14px) scale(1.04); }
+
+    .sprite-medallion { position: relative; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-bottom: 10px; }
+    .sprite-medallion.large { width: 205px; height: 205px; }
+    .medallion-night { background: radial-gradient(circle, rgba(190, 210, 238, 0.24) 0%, rgba(110, 145, 195, 0.08) 56%, transparent 74%); }
+    .medallion-crimson { background: radial-gradient(circle, rgba(235, 175, 175, 0.24) 0%, rgba(224, 108, 117, 0.10) 56%, transparent 74%); }
+    .medallion-gold { background: radial-gradient(circle, rgba(255, 232, 178, 0.34) 0%, rgba(230, 184, 92, 0.14) 56%, transparent 75%); box-shadow: 0 0 32px rgba(230, 184, 92, 0.16); }
+    .medallion-teal { background: radial-gradient(circle, rgba(145, 224, 210, 0.25) 0%, rgba(98, 184, 168, 0.10) 56%, transparent 74%); }
+
+    .sprite-img { width: 124px; height: 124px; object-fit: contain; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35)); animation: floatSoft 4.6s ease-in-out infinite; }
+    .sprite-medallion.large .sprite-img { width: 185px; height: 185px; }
+    @keyframes floatSoft { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+    .actor-title { font-size: 14.5px; font-weight: 700; color: var(--ink); line-height: 1.25; }
+    .actor-sub { margin-top: 3px; font-size: 12px; color: var(--ink-soft); line-height: 1.3; }
+
+    .bridge-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transform: scaleX(0.3); transform-origin: left center; transition: opacity 0.45s ease, transform 0.5s ease; }
+    .bridge-arrow.show { opacity: 1; transform: scaleX(1); }
+    .bridge-arrow svg { width: 38px; height: 22px; overflow: visible; }
+    .bridge-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold); margin-bottom: 3px; text-align: center; }
+
+    .foco-caption { font-size: 16.5px; font-weight: 700; color: var(--ink); margin-bottom: 12px; opacity: 0; transform: translateY(8px); transition: opacity 0.5s ease, transform 0.5s ease; }
+    .foco-caption.show { opacity: 1; transform: translateY(0); }
+    .down-arrow { font-size: 18px; color: var(--gold); margin: 4px 0 8px; opacity: 0; transition: opacity 0.4s ease; }
+    .down-arrow.show { opacity: 1; }
+
+    .ladder { width: 100%; max-width: 330px; display: flex; flex-direction: column-reverse; gap: 8px; }
+    .ladder-step {
+      display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 14px;
+      background: var(--card-bg); border: 1px solid var(--border); opacity: 0; transform: translateY(14px);
+      transition: opacity 0.5s ease, transform 0.55s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+    }
+    .ladder-step.show { opacity: 1; transform: translateY(0); }
+    .ladder-step.highlight { border-color: var(--gold); box-shadow: 0 8px 24px rgba(230, 184, 92, 0.22); }
+    .ladder-thumb { width: 52px; height: 52px; object-fit: contain; flex-shrink: 0; }
+    .ladder-name { font-size: 14.5px; font-weight: 700; color: var(--ink); }
+    .ladder-sub { font-size: 12px; color: var(--ink-soft); }
+    .ladder-arrow { align-self: center; color: var(--gold); font-size: 14px; font-weight: 700; opacity: 0; transition: opacity 0.4s ease; }
+    .ladder-arrow.show { opacity: 1; }
+
+    .chase-stage { position: relative; width: 100%; height: 310px; margin: 6px 0 12px; }
+    .chase-actor { position: absolute; display: flex; flex-direction: column; align-items: center; transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1); opacity: 0; }
+    .chase-actor.show { opacity: 1; }
+    .chase-target { right: 14%; top: 28%; }
+    .chase-target.ascend { top: 4%; right: 10%; }
+    .chase-hunter { left: 12%; bottom: 6%; }
+    .chase-hunter.ascend { bottom: 38%; left: 26%; }
+    .chase-dropped { left: 50%; top: 42%; transform: translateX(-50%); }
+    .chase-dropped.fade-away { opacity: 0.15; top: 68%; transform: translateX(-50%) scale(0.75); }
+
+    .verse-box {
+      width: 94%; padding: 12px 16px; border-left: 3px solid var(--gold); background: var(--card-bg);
+      border-radius: 0 12px 12px 0; text-align: left; margin-bottom: 12px; opacity: 0;
+      transform: translateY(10px); transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .verse-box.show { opacity: 1; transform: translateY(0); }
+    .verse-box p { font-family: Georgia, "Times New Roman", serif; font-style: italic; font-size: 15.5px; line-height: 1.4; color: var(--ink); }
+    .verse-box small { display: block; margin-top: 5px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+
+    .tag-pill {
+      display: inline-flex; align-items: center; padding: 7px 15px; border-radius: 99px;
+      background: var(--gold-soft); border: 1px solid rgba(230, 184, 92, 0.35); color: var(--gold);
+      font-size: 13px; font-weight: 650; opacity: 0; transform: translateY(10px);
+      transition: opacity 0.5s ease, transform 0.5s ease; margin-bottom: 8px;
+    }
+    .tag-pill.show { opacity: 1; transform: translateY(0); }
+
+    .critics-footer {
+      margin-top: 12px; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; color: var(--ink-soft);
+      padding: 6px 14px; border-radius: 99px; background: var(--card-bg); border: 1px solid var(--border);
+      opacity: 0; transform: translateY(8px); transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .critics-footer.show { opacity: 1; transform: translateY(0); }
+
+    .subtitle-zone {
+      position: absolute; bottom: 46px; left: 14px; right: 14px;
+      display: flex; justify-content: center; align-items: center; min-height: 54px;
+      z-index: 35; pointer-events: none;
+    }
+    .subtitle-pill {
+      background: var(--pill-bg); border: 1px solid var(--pill-border); color: var(--pill-ink);
+      font-size: var(--sub-size); font-weight: 600; line-height: 1.24; padding: 9px 18px;
+      border-radius: 12px; text-align: center; box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
+      opacity: 0; transform: translateY(5px);
+      transition: opacity 0.12s ease, transform 0.12s ease, font-size 0.14s ease; max-width: 94%;
+    }
+    .subtitle-pill.visible { opacity: 1; transform: translateY(0); }
+
+    .scrub-zone {
+      position: absolute; left: 0; right: 0; bottom: 0; height: 36px; z-index: 48;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 0 14px max(10px, env(safe-area-inset-bottom)); cursor: pointer;
+    }
+    .scrub-tooltip {
+      align-self: center; margin-bottom: 8px; padding: 3px 10px; border-radius: 99px;
+      background: rgba(12, 16, 24, 0.85); color: var(--gold); font-size: 12px; font-weight: 700;
+      font-variant-numeric: tabular-nums; opacity: 0; transition: opacity 0.14s ease; pointer-events: none;
+    }
+    .scrub-zone.scrubbing .scrub-tooltip { opacity: 1; }
+    .scrub-track { position: relative; width: 100%; height: 3.5px; border-radius: 99px; background: rgba(255, 255, 255, 0.22); transition: height 0.14s ease; }
+    .scrub-zone.scrubbing .scrub-track, .scrub-zone:hover .scrub-track { height: 6.5px; }
+    .scrub-fill { position: relative; height: 100%; width: 0%; border-radius: 99px; background: linear-gradient(90deg, var(--teal), var(--gold)); }
+    .scrub-thumb {
+      position: absolute; right: -6px; top: 50%; width: 12px; height: 12px; border-radius: 50%;
+      background: var(--gold); transform: translateY(-50%) scale(0); transition: transform 0.14s ease;
+    }
+    .scrub-zone.scrubbing .scrub-thumb, .scrub-zone:hover .scrub-thumb { transform: translateY(-50%) scale(1); }
+
+    .time-mini {
+      position: absolute; right: 16px; bottom: 20px; font-size: 10.5px; font-variant-numeric: tabular-nums;
+      color: var(--ink-soft); opacity: 0.78; pointer-events: none; z-index: 40;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    }
+
+    /* Drawer de Ajustes (compartido por Inicio y Feed) */
+    .drawer-backdrop { position: fixed; inset: 0; z-index: 70; background: rgba(0, 0, 0, 0.45); opacity: 0; pointer-events: none; transition: opacity 0.22s ease; }
+    .drawer-backdrop.open { opacity: 1; pointer-events: auto; }
+    .settings-drawer {
+      position: fixed; left: 50%; bottom: 0; width: 100%; max-width: 560px; z-index: 75;
+      background: var(--surface); border-top: 1px solid var(--border); border-radius: 20px 20px 0 0;
+      padding: 18px 18px max(22px, env(safe-area-inset-bottom));
+      transform: translate(-50%, 105%); transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .settings-drawer.open { transform: translate(-50%, 0); }
+    .drawer-head { display: flex; align-items: center; justify-content: space-between; font-size: 15px; font-weight: 700; }
+    .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13.5px; color: var(--text); }
+    .seg-group { display: inline-flex; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 3px; }
+    .seg-btn { border: none; background: transparent; color: var(--muted); font-size: 12.5px; font-weight: 650; padding: 6px 10px; border-radius: 7px; cursor: pointer; }
+    .seg-btn.active { background: var(--gold-soft); color: var(--gold); }
+  </style>
+</head>
+<body>
+
+  <!-- ================= VISTA INICIO (EXACTA A FLASHCARDS ESTUDIO PWA) ================= -->
+  <section class="home-view" id="homeView">
+    <header class="home-header is-root" id="homeHeader">
+      <div class="home-title-wrap">
+        <div class="home-title" id="homeTitle">Reels</div>
+      </div>
+      <div class="home-header-actions">
+        <div class="folder-menu-wrap view-hidden" id="folderMenuWrap">
+          <button type="button" class="btn-icon" id="folderMenuBtn" aria-label="Opciones de carpeta" aria-expanded="false">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <circle cx="12" cy="5" r="2"></circle>
+              <circle cx="12" cy="12" r="2"></circle>
+              <circle cx="12" cy="19" r="2"></circle>
+            </svg>
+          </button>
+          <div class="folder-menu-popover" id="folderMenuPopover" role="menu">
+            <button type="button" class="folder-menu-item" id="folderRenameBtn" role="menuitem">Renombrar</button>
+            <button type="button" class="folder-menu-item is-danger" id="folderDeleteBtn" role="menuitem">Borrar</button>
+          </div>
+        </div>
+        <button class="btn-icon" id="openSettingsHome" aria-label="Ajustes">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="breadcrumb view-hidden" id="folderBreadcrumb"></div>
+
+    <div class="home-actions">
+      <label class="btn-upload">
+        + Cargar video / .zip
+        <input type="file" id="fileInput" accept=".zip,.mp4,.webm,.m4v" multiple hidden />
+      </label>
+      <button type="button" class="btn-folder-new" id="newFolderBtn">+ Carpeta</button>
+    </div>
+
+    <div class="deck-list" id="deckList"></div>
+  </section>
+
+  <!-- ================= VISTA FEED VERTICAL TIPO TIKTOK ================= -->
+  <section class="feed-view view-hidden" id="feedView">
+    <div class="reel-shell" id="reelShell">
+      <div class="feed-hud-top">
+        <div class="hud-group">
+          <span class="hud-author" id="hudAuthor">Carpeta</span>
+          <span class="hud-btn" id="hudCounter" style="pointer-events:none;font-variant-numeric:tabular-nums;">1 / 3</span>
+        </div>
+        <div class="hud-group">
+          <button class="hud-btn" id="btnSpeed" type="button" title="Velocidad">1×</button>
+          <button class="hud-btn" id="btnSettings" type="button" title="Ajustes">⚙</button>
+        </div>
+      </div>
+
+      <div class="status-pill" id="statusPill">⏸ En pausa</div>
+
+      <div class="reel-card-layer" id="reelCurrent">
+        <div class="grain-layer"></div>
+        <div id="reelViewport"></div>
+      </div>
+
+      <div class="reel-card-layer" id="reelPeek">
+        <div class="grain-layer"></div>
+        <div id="peekViewport"></div>
+      </div>
+
+      <div class="subtitle-zone" id="subtitleZone">
+        <div class="subtitle-pill" id="subtitlePill"></div>
+      </div>
+
+      <div class="time-mini" id="timeMini">0:00 / 0:00</div>
+
+      <div class="scrub-zone" id="scrubZone">
+        <div class="scrub-tooltip" id="scrubTooltip">0:00</div>
+        <div class="scrub-track" id="scrubTrack">
+          <div class="scrub-fill" id="scrubFill"><div class="scrub-thumb"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal Carpetas / Renombrar / Mover (exacto a Flashcards) -->
+  <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+    <div class="modal-card" id="modalCard" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <!-- Drawer de Ajustes -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <div class="settings-drawer" id="settingsDrawer">
+    <div class="drawer-head">
+      <span>Ajustes del reproductor</span>
+      <button class="hud-btn" id="btnCloseSettings" type="button">✕</button>
+    </div>
+    <div class="setting-row">
+      <span>Tema</span>
+      <div class="seg-group">
+        <button class="seg-btn" data-set-theme="dark">Oscuro</button>
+        <button class="seg-btn" data-set-theme="light">Claro</button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <span>Subtítulos (reels)</span>
+      <div class="seg-group">
+        <button class="seg-btn" data-set-subs="on">Visibles</button>
+        <button class="seg-btn" data-set-subs="off">Ocultos</button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <span>Tamaño subtítulos (<strong id="subSizeVal">24px</strong>)</span>
+      <div class="seg-group">
+        <button class="seg-btn" id="setSubDown">A−</button>
+        <button class="seg-btn" id="setSubUp">A+</button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <span>Al terminar</span>
+      <div class="seg-group">
+        <button class="seg-btn" data-set-end="next">Siguiente</button>
+        <button class="seg-btn" data-set-end="loop">Repetir</button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <span>Velocidad base</span>
+      <div class="seg-group">
+        <button class="seg-btn" data-set-rate="1">1×</button>
+        <button class="seg-btn" data-set-rate="1.25">1.25×</button>
+        <button class="seg-btn" data-set-rate="1.5">1.5×</button>
+        <button class="seg-btn" data-set-rate="2">2×</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <audio id="audio" preload="auto"></audio>
+
+  <script src="./biblioteca/catalog.js"></script>
+
+  <script>
+    /* =====================================================================
+       1. ESTADO PERSISTENTE: CARPETAS MUTABLES + OVERRIDES + SETTINGS
+       ===================================================================== */
+    const LS_FOLDERS = "reels_estudio_folders_v4";
+    const LS_DELETED_CAT_FOLDERS = "reels_estudio_del_cat_folders_v4";
+    const LS_VIDEO_OVERRIDES = "reels_estudio_video_overrides_v4";
+    const LS_SETTINGS = "reels_estudio_settings_v1";
+    const IDB_NAME = "ReelsEstudioLocalDB";
+    const IDB_STORE = "local_videos";
+
+    const DEFAULT_SETTINGS = { theme: "dark", subs: "on", subSize: 24, onEnd: "next", rate: 1 };
+    let settings = { ...DEFAULT_SETTINGS, ...(JSON.parse(localStorage.getItem(LS_SETTINGS) || "null") || {}) };
+
+    let folders = JSON.parse(localStorage.getItem(LS_FOLDERS) || "null") || [];
+    let deletedCatFolders = new Set(JSON.parse(localStorage.getItem(LS_DELETED_CAT_FOLDERS) || "[]"));
+    let videoOverrides = JSON.parse(localStorage.getItem(LS_VIDEO_OVERRIDES) || "{}");
+    let catalogVideos = [];
+    let localItems = [];
+
+    let currentFolderId = null;
+    let forwardStack = [];
+
+    let feedVideos = [];
+    let feedIndex = 0;
+    let activeVideoItem = null;
+    let activeMediaEl = null;
+    let activeObjectUrls = [];
+    let peekObjectUrls = [];
+    let isTransitioning = false;
+    let rafId = null;
+    let isScrubbing = false;
+    let currentSceneIdx = -1;
+
+    const audio = document.getElementById("audio");
+    const homeView = document.getElementById("homeView");
+    const homeHeader = document.getElementById("homeHeader");
+    const homeTitle = document.getElementById("homeTitle");
+    const openSettingsHome = document.getElementById("openSettingsHome");
+    const folderMenuWrap = document.getElementById("folderMenuWrap");
+    const folderMenuBtn = document.getElementById("folderMenuBtn");
+    const folderRenameBtn = document.getElementById("folderRenameBtn");
+    const folderDeleteBtn = document.getElementById("folderDeleteBtn");
+    const folderBreadcrumb = document.getElementById("folderBreadcrumb");
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const modalCard = document.getElementById("modalCard");
+
+    const feedView = document.getElementById("feedView");
+    const reelShell = document.getElementById("reelShell");
+    const reelCurrent = document.getElementById("reelCurrent");
+    const reelPeek = document.getElementById("reelPeek");
+    const reelViewport = document.getElementById("reelViewport");
+    const peekViewport = document.getElementById("peekViewport");
+    const subtitleZone = document.getElementById("subtitleZone");
+    const subtitlePill = document.getElementById("subtitlePill");
+    const statusPill = document.getElementById("statusPill");
+    const scrubZone = document.getElementById("scrubZone");
+    const scrubTrack = document.getElementById("scrubTrack");
+    const scrubFill = document.getElementById("scrubFill");
+    const scrubTooltip = document.getElementById("scrubTooltip");
+    const timeMini = document.getElementById("timeMini");
+    const hudAuthor = document.getElementById("hudAuthor");
+    const hudCounter = document.getElementById("hudCounter");
+    const btnSpeed = document.getElementById("btnSpeed");
+    const toastEl = document.getElementById("toast");
+
+    function showToast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toastEl._t);
+      toastEl._t = setTimeout(() => toastEl.classList.remove("show"), 2600);
+    }
+
+    function fmt(sec) {
+      const s = Math.max(0, Math.floor(sec || 0));
+      return `${Math.floor(s / 60)}:${s % 60 < 10 ? "0" : ""}${s % 60}`;
+    }
+
+    function saveFolders() { localStorage.setItem(LS_FOLDERS, JSON.stringify(folders)); }
+    function saveDeletedCatFolders() { localStorage.setItem(LS_DELETED_CAT_FOLDERS, JSON.stringify([...deletedCatFolders])); }
+    function saveVideoOverrides() { localStorage.setItem(LS_VIDEO_OVERRIDES, JSON.stringify(videoOverrides)); }
+
+    function saveSettings() {
+      localStorage.setItem(LS_SETTINGS, JSON.stringify(settings));
+      applySettings();
+    }
+
+    function applySettings() {
+      document.documentElement.setAttribute("data-theme", settings.theme);
+      document.documentElement.style.setProperty("--sub-size", settings.subSize + "px");
+      document.getElementById("subSizeVal").textContent = settings.subSize + "px";
+      const hideSubs = settings.subs === "off" || (activeVideoItem && activeVideoItem.kind === "mp4");
+      subtitleZone.classList.toggle("hidden", hideSubs);
+      if (activeMediaEl) activeMediaEl.playbackRate = settings.rate;
+      btnSpeed.textContent = settings.rate + "×";
+
+      document.querySelectorAll("[data-set-theme]").forEach(b => b.classList.toggle("active", b.dataset.setTheme === settings.theme));
+      document.querySelectorAll("[data-set-subs]").forEach(b => b.classList.toggle("active", b.dataset.setSubs === settings.subs));
+      document.querySelectorAll("[data-set-end]").forEach(b => b.classList.toggle("active", b.dataset.setEnd === settings.onEnd));
+      document.querySelectorAll("[data-set-rate]").forEach(b => b.classList.toggle("active", Number(b.dataset.setRate) === settings.rate));
+    }
+
+    /* =====================================================================
+       2. SINCRONIZACIÓN DE biblioteca/catalog.js -> CARPETAS Y VIDEOS MUTABLES
+       ===================================================================== */
+    function ingestCatalogTree() {
+      const root = window.REELS_CATALOG || { folders: [], videos: [] };
+      const existingIds = new Set(folders.map(f => f.id));
+      catalogVideos = [];
+
+      function walk(node, parentId) {
+        (node.videos || []).forEach(v => {
+          const uid = `cat_${node.path || "root"}_${v.id}`;
+          catalogVideos.push({
+            ...v,
+            uid,
+            source: "catalog",
+            defaultFolderId: parentId
+          });
+        });
+
+        (node.folders || []).forEach(child => {
+          const fid = `catf_${child.path}`;
+          let effectiveId = fid;
+          if (!deletedCatFolders.has(fid)) {
+            if (!existingIds.has(fid)) {
+              folders.push({ id: fid, name: child.name, parentId: parentId || null, fromCatalog: true });
+              existingIds.add(fid);
+            }
+          } else {
+            effectiveId = parentId || null;
+          }
+          walk(child, effectiveId);
+        });
+      }
+
+      walk(root, null);
+      saveFolders();
+    }
+
+    function getAllActiveVideos() {
+      const folderIds = new Set(folders.map(f => f.id));
+      const merged = [];
+
+      for (const v of catalogVideos) {
+        const ov = videoOverrides[v.uid] || {};
+        if (ov.deleted) continue;
+        let fid = ("folderId" in ov) ? ov.folderId : v.defaultFolderId;
+        if (fid && !folderIds.has(fid)) fid = null;
+        merged.push({ ...v, folderId: fid || null });
+      }
+
+      for (const v of localItems) {
+        let fid = v.folderId || null;
+        if (fid && !folderIds.has(fid)) fid = null;
+        merged.push({ ...v, folderId: fid });
+      }
+      return merged;
+    }
+
+    /* =====================================================================
+       3. INDEXEDDB + ZIP / MP4 IMPORT
+       ===================================================================== */
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_NAME, 1);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE, { keyPath: "uid" });
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function idbGetAll() {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(IDB_STORE, "readonly");
+        const req = tx.objectStore(IDB_STORE).getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function idbPut(rec) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(IDB_STORE, "readwrite");
+        tx.objectStore(IDB_STORE).put(rec);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function idbDelete(uid) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(IDB_STORE, "readwrite");
+        tx.objectStore(IDB_STORE).delete(uid);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function unzipEntries(arrayBuffer) {
+      const dv = new DataView(arrayBuffer);
+      const u8 = new Uint8Array(arrayBuffer);
+      let eocd = -1;
+      for (let i = u8.length - 22; i >= Math.max(0, u8.length - 65557); i--) {
+        if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+      }
+      if (eocd === -1) throw new Error("ZIP inválido");
+      const cdCount = dv.getUint16(eocd + 10, true);
+      let offset = dv.getUint32(eocd + 16, true);
+      const decoder = new TextDecoder("utf-8");
+      const files = new Map();
+      for (let i = 0; i < cdCount; i++) {
+        if (dv.getUint32(offset, true) !== 0x02014b50) break;
+        const method = dv.getUint16(offset + 10, true);
+        const compSize = dv.getUint32(offset + 20, true);
+        const nameLen = dv.getUint16(offset + 28, true);
+        const extraLen = dv.getUint16(offset + 30, true);
+        const commentLen = dv.getUint16(offset + 32, true);
+        const localOffset = dv.getUint32(offset + 42, true);
+        const name = decoder.decode(u8.subarray(offset + 46, offset + 46 + nameLen)).replace(/\\/g, "/");
+        offset += 46 + nameLen + extraLen + commentLen;
+        if (name.endsWith("/")) continue;
+        const lNameLen = dv.getUint16(localOffset + 26, true);
+        const lExtraLen = dv.getUint16(localOffset + 28, true);
+        const dataStart = localOffset + 30 + lNameLen + lExtraLen;
+        const raw = u8.subarray(dataStart, dataStart + compSize);
+        let content;
+        if (method === 0) content = raw.slice();
+        else if (method === 8) {
+          const ds = new DecompressionStream("deflate-raw");
+          content = new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(ds)).arrayBuffer());
+        } else throw new Error("Método ZIP no soportado");
+        files.set(name, content);
+      }
+      return files;
+    }
+
+    function mimeFor(path) {
+      const p = path.toLowerCase();
+      if (p.endsWith(".mp3")) return "audio/mpeg";
+      if (p.endsWith(".png")) return "image/png";
+      if (p.endsWith(".jpg") || p.endsWith(".jpeg")) return "image/jpeg";
+      if (p.endsWith(".webp")) return "image/webp";
+      if (p.endsWith(".mp4")) return "video/mp4";
+      return "application/octet-stream";
+    }
+
+    async function importLocalFile(file) {
+      const lower = file.name.toLowerCase();
+      if (lower.endsWith(".mp4") || lower.endsWith(".webm") || lower.endsWith(".m4v")) {
+        const title = file.name.replace(/\.[^.]+$/, "").replace(/^\d+[\s._-]+/, "").replace(/_/g, " ");
+        await idbPut({
+          uid: `mp4_${Date.now()}_${file.name}`,
+          folderId: currentFolderId,
+          kind: "mp4",
+          source: "idb",
+          title,
+          subtitle: "Video MP4 local",
+          blob: file
+        });
+        return 1;
+      }
+      if (lower.endsWith(".zip")) {
+        const entries = await unzipEntries(await file.arrayBuffer());
+        const decoder = new TextDecoder("utf-8");
+        const reelPaths = [...entries.keys()].filter(k => k === "reel.json" || k.endsWith("/reel.json"));
+        let count = 0;
+        for (const rPath of reelPaths) {
+          const prefix = rPath.slice(0, rPath.length - "reel.json".length);
+          const reel = JSON.parse(decoder.decode(entries.get(rPath)));
+          const blobs = {};
+          for (const [k, u8] of entries.entries()) {
+            if (k.startsWith(prefix) && k !== rPath) {
+              const rel = k.slice(prefix.length);
+              blobs[rel] = new Blob([u8], { type: mimeFor(rel) });
+            }
+          }
+          await idbPut({
+            uid: `reel_${Date.now()}_${reel.id || count}`,
+            folderId: currentFolderId,
+            kind: "reel",
+            source: "idb",
+            title: reel.title || "Sin título",
+            subtitle: reel.work || reel.author || "",
+            duration: reel.duration || 0,
+            reel,
+            blobs
+          });
+          count++;
+        }
+        return count;
+      }
+      return 0;
+    }
+
+    /* =====================================================================
+       4. MODALES Y GESTIÓN DE CARPETAS / VIDEOS (EXACTOS A FLASHCARDS PWA)
+       ===================================================================== */
+    function closeModal() {
+      modalBackdrop.classList.remove("open");
+      modalBackdrop.setAttribute("aria-hidden", "true");
+      modalCard.innerHTML = "";
+    }
+
+    modalBackdrop.addEventListener("click", (e) => {
+      if (e.target === modalBackdrop) closeModal();
+    });
+
+    function openFolderNameModal({ title, initialValue = "", confirmLabel = "Guardar", onSave }) {
+      modalCard.innerHTML = "";
+      const h = document.createElement("div");
+      h.className = "modal-title";
+      h.textContent = title;
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "modal-input";
+      input.placeholder = "Nombre de la carpeta...";
+      input.value = initialValue;
+
+      const actions = document.createElement("div");
+      actions.className = "modal-actions";
+
+      const cancelBtn = document.createElement("button");
+      cancelBtn.type = "button";
+      cancelBtn.className = "btn-mini";
+      cancelBtn.textContent = "Cancelar";
+      cancelBtn.addEventListener("click", closeModal);
+
+      const okBtn = document.createElement("button");
+      okBtn.type = "button";
+      okBtn.className = "btn-primary";
+      okBtn.textContent = confirmLabel;
+
+      const submit = () => {
+        const val = input.value.trim();
+        if (!val) return;
+        onSave(val);
+        closeModal();
+      };
+      okBtn.addEventListener("click", submit);
+      input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+      actions.append(cancelBtn, okBtn);
+      modalCard.append(h, input, actions);
+      modalBackdrop.classList.add("open");
+      modalBackdrop.setAttribute("aria-hidden", "false");
+      setTimeout(() => { input.focus(); input.select(); }, 30);
+    }
+
+    function getFolderPath(folderId) {
+      const chain = [];
+      let cur = folders.find(f => f.id === folderId);
+      const seen = new Set();
+      while (cur && !seen.has(cur.id)) {
+        seen.add(cur.id);
+        chain.unshift(cur);
+        cur = cur.parentId ? folders.find(f => f.id === cur.parentId) : null;
+      }
+      return chain;
+    }
+
+    async function moveVideoToFolder(video, targetFolderId) {
+      if (video.source === "catalog") {
+        videoOverrides[video.uid] = { ...(videoOverrides[video.uid] || {}), folderId: targetFolderId || null };
+        saveVideoOverrides();
+      } else {
+        const rec = localItems.find(x => x.uid === video.uid);
+        if (rec) {
+          rec.folderId = targetFolderId || null;
+          await idbPut(rec);
+        }
+      }
+      renderHome();
+    }
+
+    async function deleteVideoItem(video) {
+      if (!confirm(`¿Borrar "${video.title}"?`)) return;
+      if (video.source === "catalog") {
+        videoOverrides[video.uid] = { ...(videoOverrides[video.uid] || {}), deleted: true };
+        saveVideoOverrides();
+      } else {
+        await idbDelete(video.uid);
+        localItems = localItems.filter(x => x.uid !== video.uid);
+      }
+      renderHome();
+    }
+
+    function openMoveVideoModal(video) {
+      modalCard.innerHTML = "";
+      const h = document.createElement("div");
+      h.className = "modal-title";
+      h.textContent = `Mover "${video.title}"`;
+
+      const list = document.createElement("div");
+      list.className = "modal-list";
+
+      const noneBtn = document.createElement("button");
+      noneBtn.type = "button";
+      noneBtn.className = "modal-opt" + (!video.folderId ? " selected" : "");
+      noneBtn.textContent = "Inicio (raíz)";
+      noneBtn.addEventListener("click", async () => {
+        await moveVideoToFolder(video, null);
+        closeModal();
+      });
+      list.appendChild(noneBtn);
+
+      folders.forEach(folder => {
+        const pathLabel = getFolderPath(folder.id).map(f => f.name).join(" / ");
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "modal-opt" + (video.folderId === folder.id ? " selected" : "");
+        btn.textContent = `📁 ${pathLabel}`;
+        btn.addEventListener("click", async () => {
+          await moveVideoToFolder(video, folder.id);
+          closeModal();
+        });
+        list.appendChild(btn);
+      });
+
+      const actions = document.createElement("div");
+      actions.className = "modal-actions";
+
+      const newBtn = document.createElement("button");
+      newBtn.type = "button";
+      newBtn.className = "btn-primary";
+      newBtn.textContent = "+ Nueva carpeta aquí";
+      newBtn.addEventListener("click", () => {
+        openFolderNameModal({
+          title: "Nueva carpeta",
+          confirmLabel: "Crear y mover",
+          onSave: async (name) => {
+            const folder = { id: "folder_" + Date.now(), name, parentId: currentFolderId };
+            folders.push(folder);
+            saveFolders();
+            await moveVideoToFolder(video, folder.id);
+          }
+        });
+      });
+
+      const cancelBtn = document.createElement("button");
+      cancelBtn.type = "button";
+      cancelBtn.className = "btn-mini";
+      cancelBtn.textContent = "Cerrar";
+      cancelBtn.addEventListener("click", closeModal);
+
+      actions.append(cancelBtn, newBtn);
+      modalCard.append(h, list, actions);
+      modalBackdrop.classList.add("open");
+      modalBackdrop.setAttribute("aria-hidden", "false");
+    }
+
+    document.getElementById("newFolderBtn").addEventListener("click", () => {
+      openFolderNameModal({
+        title: currentFolderId ? "Nueva subcarpeta" : "Nueva carpeta",
+        confirmLabel: "Crear",
+        onSave: (name) => {
+          folders.push({ id: "folder_" + Date.now(), name, parentId: currentFolderId });
+          saveFolders();
+          renderHome();
+        }
+      });
+    });
+
+    function closeFolderMenu() {
+      folderMenuWrap.classList.remove("open");
+      folderMenuBtn.setAttribute("aria-expanded", "false");
+    }
+
+    folderMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const willOpen = !folderMenuWrap.classList.contains("open");
+      folderMenuWrap.classList.toggle("open", willOpen);
+      folderMenuBtn.setAttribute("aria-expanded", String(willOpen));
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!folderMenuWrap.contains(e.target)) closeFolderMenu();
+    });
+
+    folderRenameBtn.addEventListener("click", () => {
+      closeFolderMenu();
+      const cur = folders.find(f => f.id === currentFolderId);
+      if (!cur) return;
+      openFolderNameModal({
+        title: "Renombrar carpeta",
+        initialValue: cur.name,
+        confirmLabel: "Guardar",
+        onSave: (newName) => {
+          cur.name = newName;
+          saveFolders();
+          renderHome();
+        }
+      });
+    });
+
+    folderDeleteBtn.addEventListener("click", async () => {
+      closeFolderMenu();
+      const cur = folders.find(f => f.id === currentFolderId);
+      if (!cur) return;
+      const parent = cur.parentId || null;
+      if (!confirm(`¿Borrar la carpeta "${cur.name}"? Su contenido subirá un nivel.`)) return;
+
+      // Subir subcarpetas un nivel
+      folders.forEach(f => { if (f.parentId === cur.id) f.parentId = parent; });
+
+      // Subir videos de catálogo un nivel
+      const allVids = getAllActiveVideos();
+      for (const v of allVids) {
+        if (v.folderId === cur.id) {
+          if (v.source === "catalog") {
+            videoOverrides[v.uid] = { ...(videoOverrides[v.uid] || {}), folderId: parent };
+          } else {
+            const rec = localItems.find(x => x.uid === v.uid);
+            if (rec) { rec.folderId = parent; await idbPut(rec); }
+          }
+        }
+      }
+
+      if (cur.fromCatalog) {
+        deletedCatFolders.add(cur.id);
+        saveDeletedCatFolders();
+      }
+      folders = folders.filter(f => f.id !== cur.id);
+      currentFolderId = parent;
+      forwardStack = [];
+      saveFolders();
+      saveVideoOverrides();
+      renderHome();
+    });
+
+    /* =====================================================================
+       5. RENDER DEL INICIO (EXACTO A FLASHCARDS ESTUDIO PWA)
+       ===================================================================== */
+    function renderHome() {
+      const list = document.getElementById("deckList");
+      list.innerHTML = "";
+
+      const folderIds = new Set(folders.map(f => f.id));
+      if (currentFolderId && !folderIds.has(currentFolderId)) currentFolderId = null;
+
+      const curFolder = currentFolderId ? folders.find(f => f.id === currentFolderId) : null;
+      homeTitle.textContent = curFolder ? curFolder.name : "Reels";
+      homeHeader.classList.toggle("is-root", !curFolder);
+      openSettingsHome.classList.toggle("view-hidden", !!curFolder);
+      folderMenuWrap.classList.toggle("view-hidden", !curFolder);
+      closeFolderMenu();
+
+      folderBreadcrumb.innerHTML = "";
+      if (curFolder) {
+        folderBreadcrumb.classList.remove("view-hidden");
+        const rootBtn = document.createElement("button");
+        rootBtn.type = "button";
+        rootBtn.className = "crumb-btn";
+        rootBtn.textContent = "Inicio";
+        rootBtn.addEventListener("click", () => {
+          forwardStack = [];
+          currentFolderId = null;
+          renderHome();
+        });
+        folderBreadcrumb.appendChild(rootBtn);
+
+        const chain = getFolderPath(curFolder.id);
+        chain.forEach((f, idx) => {
+          const sep = document.createElement("span");
+          sep.textContent = "›";
+          folderBreadcrumb.appendChild(sep);
+          if (idx === chain.length - 1) {
+            const curSpan = document.createElement("span");
+            curSpan.className = "crumb-current";
+            curSpan.textContent = f.name;
+            folderBreadcrumb.appendChild(curSpan);
+          } else {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "crumb-btn";
+            btn.textContent = f.name;
+            btn.addEventListener("click", () => {
+              forwardStack = [];
+              currentFolderId = f.id;
+              renderHome();
+            });
+            folderBreadcrumb.appendChild(btn);
+          }
+        });
+      } else {
+        folderBreadcrumb.classList.add("view-hidden");
+      }
+
+      // 1. Subcarpetas (.folder-row)
+      const childFolders = folders.filter(f => {
+        const pid = f.parentId && folderIds.has(f.parentId) ? f.parentId : null;
+        return pid === currentFolderId;
+      });
+
+      childFolders.forEach(folder => {
+        const row = document.createElement("div");
+        row.className = "folder-row";
+        const nameEl = document.createElement("span");
+        nameEl.className = "folder-name";
+        nameEl.textContent = `📁 ${folder.name}`;
+        const arrow = document.createElement("span");
+        arrow.className = "folder-arrow";
+        arrow.textContent = "›";
+        row.append(nameEl, arrow);
+        row.addEventListener("click", () => {
+          animateFolderChange("forward", () => {
+            forwardStack = [];
+            currentFolderId = folder.id;
+          });
+        });
+        list.appendChild(row);
+      });
+
+      // 2. Videos individuales en esta carpeta (.deck-item con Mover y Borrar)
+      const videosHere = getAllActiveVideos().filter(v => (v.folderId || null) === currentFolderId);
+      const folderLabel = curFolder ? curFolder.name : "Reels";
+
+      videosHere.forEach((video, idx) => {
+        const row = document.createElement("div");
+        row.className = "deck-item" + (activeVideoItem && activeVideoItem.uid === video.uid ? " active" : "");
+
+        if (video.kind === "mp4") {
+          const thumb = document.createElement("div");
+          thumb.className = "video-thumb-mp4";
+          thumb.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg><span>MP4</span>`;
+          row.appendChild(thumb);
+        } else {
+          let coverUrl = video.cover || "";
+          if (video.source === "idb" && video.blobs && video.blobs[video.reel.cover]) coverUrl = URL.createObjectURL(video.blobs[video.reel.cover]);
+          const img = document.createElement("img");
+          img.className = "video-thumb";
+          img.draggable = false;
+          img.src = coverUrl;
+          img.alt = "";
+          row.appendChild(img);
+        }
+
+        const info = document.createElement("div");
+        info.className = "deck-info";
+        const nameEl = document.createElement("div");
+        nameEl.className = "deck-name";
+        nameEl.textContent = video.title;
+        const metaEl = document.createElement("div");
+        metaEl.className = "deck-meta";
+        const tag = video.kind === "mp4" ? "MP4" : "Reel";
+        metaEl.textContent = video.duration ? `${tag} · ${fmt(video.duration)}` : tag;
+        info.append(nameEl, metaEl);
+        row.appendChild(info);
+
+        const actions = document.createElement("div");
+        actions.className = "deck-actions";
+
+        const moveBtn = document.createElement("button");
+        moveBtn.type = "button";
+        moveBtn.className = "btn-mini";
+        moveBtn.textContent = "Mover";
+        moveBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openMoveVideoModal(video);
+        });
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "btn-del";
+        delBtn.textContent = "Borrar";
+        delBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          deleteVideoItem(video);
+        });
+
+        actions.append(moveBtn, delBtn);
+        row.appendChild(actions);
+
+        row.addEventListener("click", () => openFolderFeed(folderLabel, videosHere, idx));
+        list.appendChild(row);
+      });
+
+      if (childFolders.length === 0 && videosHere.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.innerHTML = curFolder
+          ? "<div>Carpeta vacía. Creá una subcarpeta o cargá un video / .zip acá.</div>"
+          : "<div>No tenés videos cargados.</div>";
+        list.appendChild(empty);
+      }
+    }
+
+    function animateFolderChange(direction, updateFn) {
+      if (isTransitioning) return;
+      isTransitioning = true;
+      const outCls = direction === "back" ? "slide-out-right" : "slide-out-left";
+      const prepCls = direction === "back" ? "slide-in-prep-left" : "slide-in-prep-right";
+      homeView.classList.add(outCls);
+      setTimeout(() => {
+        updateFn();
+        homeView.classList.remove(outCls);
+        homeView.classList.add(prepCls);
+        renderHome();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            homeView.classList.remove(prepCls);
+            setTimeout(() => { isTransitioning = false; }, 190);
+          });
+        });
+      }, 160);
+    }
+
+    function stopActiveMedia() {
+      cancelAnimationFrame(rafId);
+      if (activeMediaEl) { try { activeMediaEl.pause(); } catch {} }
+    }
+
+    function showHomeView(fromSwipe = false) {
+      stopActiveMedia();
+      renderHome();
+      homeView.classList.remove("slide-out-left", "slide-out-right");
+      if (fromSwipe) homeView.classList.add("slide-in-prep-left");
+      feedView.classList.add("view-hidden");
+      homeView.classList.remove("view-hidden");
+      if (fromSwipe) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => homeView.classList.remove("slide-in-prep-left"));
+        });
+      }
+    }
+
+    function showFeedView(fromSwipe = false) {
+      reelShell.classList.remove("slide-in-prep-right");
+      if (fromSwipe) reelShell.classList.add("slide-in-prep-right");
+      homeView.classList.add("view-hidden");
+      feedView.classList.remove("view-hidden");
+      if (fromSwipe) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => reelShell.classList.remove("slide-in-prep-right"));
+        });
+      }
+      if (activeMediaEl && activeMediaEl.paused && !activeMediaEl.ended) {
+        activeMediaEl.play().catch(() => {});
+      }
+    }
+
+    /* =====================================================================
+       6. MOTOR MIXTO (REELS ANIMADOS DE 7 PLANTILLAS + MP4 NATIVO)
+       ===================================================================== */
+    function getAssetUrl(entry, relPath, bucket) {
+      if (!relPath) return "";
+      if (entry.source === "catalog") return (entry.baseUrl || "") + relPath;
+      const blob = entry.blobs && entry.blobs[relPath];
+      if (!blob) return "";
+      const url = URL.createObjectURL(blob);
+      bucket.push(url);
+      return url;
+    }
+
+    function buildSceneHTML(sc, idx, entry, bucket, forceActive = false) {
+      const img = (p) => getAssetUrl(entry, p, bucket);
+      const actCls = forceActive ? " active" : "";
+
+      if (sc.type === "apertura") {
+        return `<section class="scene${actCls}" data-scene="${idx}">
+          <div class="poster-wrap">
+            <img class="poster-img" draggable="false" src="${img(sc.img)}" alt="" />
+            <div class="poster-badge${forceActive ? " show" : ""}" data-at="${sc.badgeAt ?? 1.5}">
+              <strong>${sc.badgeTitle || entry.title}</strong>
+              <small>${sc.badgeSub || entry.subtitle || ""}</small>
+            </div>
+          </div></section>`;
+      }
+
+      if (sc.type === "duelo" || sc.type === "contraste" || sc.type === "convergencia") {
+        const isConv = sc.type === "convergencia";
+        const arrowSvg = isConv
+          ? `<svg viewBox="0 0 40 20"><line x1="6" y1="10" x2="34" y2="10" stroke="var(--gold)" stroke-width="2.6" stroke-linecap="round"/><polyline points="12,4 5,10 12,16" fill="none" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><polyline points="28,4 35,10 28,16" fill="none" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+          : `<svg viewBox="0 0 40 20"><line x1="2" y1="10" x2="31" y2="10" stroke="var(--gold)" stroke-width="2.6" stroke-linecap="round"/><polyline points="25,4 33,10 25,16" fill="none" stroke="var(--gold)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        return `<section class="scene${actCls}" data-scene="${idx}">
+          <h1 class="scene-title">${sc.title || ""}</h1>
+          ${sc.verse ? `<div class="verse-box" data-at="${sc.verse.at ?? sc.start}"><p>${sc.verse.text}</p><small>${sc.verse.work || ""}</small></div>` : ""}
+          <div class="duo-stage">
+            <div class="actor" data-at="${sc.left.at ?? sc.start}" ${sc.left.dimAt ? `data-dim-at="${sc.left.dimAt}"` : ""} ${isConv && sc.convergeAt ? `data-conv-left="${sc.convergeAt}"` : ""}>
+              <div class="sprite-medallion medallion-${sc.left.aura || "night"}"><img class="sprite-img" draggable="false" src="${img(sc.left.img)}" alt="" /></div>
+              <div class="actor-title">${sc.left.title || ""}</div><div class="actor-sub">${sc.left.sub || ""}</div>
+            </div>
+            <div class="bridge-arrow" data-at="${sc.arrow ? sc.arrow.at : sc.start + 1}">
+              <div class="bridge-label">${sc.arrow ? sc.arrow.label : ""}</div>${arrowSvg}
+            </div>
+            <div class="actor" data-at="${sc.right.at ?? sc.start}" ${sc.right.dimAt ? `data-dim-at="${sc.right.dimAt}"` : ""} ${isConv && sc.convergeAt ? `data-conv-right="${sc.convergeAt}"` : ""}>
+              <div class="sprite-medallion medallion-${sc.right.aura || "gold"}"><img class="sprite-img" draggable="false" src="${img(sc.right.img)}" alt="" /></div>
+              <div class="actor-title">${sc.right.title || ""}</div><div class="actor-sub">${sc.right.sub || ""}</div>
+            </div>
+          </div>
+          ${sc.pill ? `<div class="tag-pill" data-at="${sc.pill.at ?? sc.start}">${sc.pill.text}</div>` : ""}
+          ${sc.footer ? `<div class="critics-footer" data-at="${sc.footer.at ?? sc.start}">${sc.footer.text}</div>` : ""}
+        </section>`;
+      }
+
+      if (sc.type === "foco") {
+        return `<section class="scene${actCls}" data-scene="${idx}">
+          <h1 class="scene-title">${sc.title || ""}</h1>
+          <div class="sprite-medallion large medallion-${sc.aura || "gold"}"><img class="sprite-img" draggable="false" src="${img(sc.img)}" alt="" /></div>
+          ${sc.caption ? `<div class="foco-caption" data-at="${sc.caption.at ?? sc.start}">${sc.caption.text}</div>` : ""}
+          ${sc.pill ? `<div class="tag-pill" data-at="${sc.pill.at ?? sc.start}">${sc.pill.text}</div>` : ""}
+          ${sc.arrowAt ? `<div class="down-arrow" data-at="${sc.arrowAt}">↓</div>` : ""}
+          ${sc.verse ? `<div class="verse-box" style="text-align:center;" data-at="${sc.verse.at ?? sc.start}"><p>${sc.verse.text}</p><small>${sc.verse.work || ""}</small></div>` : ""}
+        </section>`;
+      }
+
+      if (sc.type === "escalera") {
+        const stepsHtml = (sc.steps || []).map((st, i) => `
+          ${i > 0 ? `<div class="ladder-arrow" data-at="${(st.at || sc.start) - 0.25}">↑</div>` : ""}
+          <div class="ladder-step" data-at="${st.at ?? sc.start}" ${st.highlightAt ? `data-hi-at="${st.highlightAt}"` : ""}>
+            <img class="ladder-thumb" draggable="false" src="${img(st.img)}" alt="" />
+            <div><div class="ladder-name">${st.name}</div><div class="ladder-sub">${st.sub || ""}</div></div>
+          </div>`).join("");
+        return `<section class="scene${actCls}" data-scene="${idx}">
+          <h1 class="scene-title" style="margin-bottom:12px;">${sc.title || ""}</h1>
+          <div class="ladder">${stepsHtml}</div>
+          ${sc.footer ? `<div class="critics-footer" data-at="${sc.footer.at ?? sc.start}">${sc.footer.text}</div>` : ""}
+        </section>`;
+      }
+
+      if (sc.type === "persecucion") {
+        return `<section class="scene${actCls}" data-scene="${idx}">
+          <h1 class="scene-title">${sc.title || ""}</h1>
+          <div class="chase-stage">
+            ${sc.dropped ? `<div class="chase-actor chase-dropped" data-at="${sc.dropped.at ?? sc.start}" data-fade-at="${sc.dropped.fadeAt ?? sc.start + 3}">
+              <img class="sprite-img" draggable="false" style="width:84px;height:84px;" src="${img(sc.dropped.img)}" alt="" /><div class="actor-sub">${sc.dropped.title || ""}</div></div>` : ""}
+            <div class="chase-actor chase-target" data-at="${sc.target.at ?? sc.start}" data-ascend-at="${sc.ascendAt ?? sc.start + 2}">
+              <div class="sprite-medallion medallion-${sc.target.aura || "gold"}" style="width:118px;height:118px;"><img class="sprite-img" draggable="false" style="width:104px;height:104px;" src="${img(sc.target.img)}" alt="" /></div>
+              <div class="actor-title">${sc.target.title || ""}</div>
+            </div>
+            <div class="chase-actor chase-hunter" data-at="${sc.hunter.at ?? sc.start}" data-ascend-at="${sc.ascendAt ?? sc.start + 2}">
+              <div class="sprite-medallion medallion-${sc.hunter.aura || "night"}" style="width:118px;height:118px;"><img class="sprite-img" draggable="false" style="width:104px;height:104px;" src="${img(sc.hunter.img)}" alt="" /></div>
+              <div class="actor-title">${sc.hunter.title || ""}</div>
+            </div>
+          </div>
+          ${sc.pill ? `<div class="tag-pill" data-at="${sc.pill.at ?? sc.start}">${sc.pill.text}</div>` : ""}
+        </section>`;
+      }
+      return "";
+    }
+
+    function revokeUrls(bucket) { bucket.forEach(u => URL.revokeObjectURL(u)); bucket.length = 0; }
+
+    function attachMediaListeners(mediaEl) {
+      mediaEl.onplay = () => { hideStatus(); cancelAnimationFrame(rafId); rafId = requestAnimationFrame(tick); };
+      mediaEl.onpause = () => { cancelAnimationFrame(rafId); if (!mediaEl.ended && !isScrubbing && !isTransitioning) showStatus("⏸ En pausa"); };
+      mediaEl.onended = () => {
+        cancelAnimationFrame(rafId);
+        if (settings.onEnd === "loop") { mediaEl.currentTime = 0; mediaEl.play(); }
+        else if (feedIndex < feedVideos.length - 1) animateReelStep(1);
+        else showStatus("↻ Fin · Tocá para repetir");
+      };
+    }
+
+    function openFolderFeed(folderName, videos, startIdx = 0) {
+      feedVideos = videos;
+      hudAuthor.textContent = folderName;
+      showFeedView(true);
+      loadVideoAt(startIdx, true);
+    }
+
+    function loadVideoAt(idx, autoplay = true) {
+      if (idx < 0 || idx >= feedVideos.length) return;
+      stopActiveMedia();
+      feedIndex = idx;
+      activeVideoItem = feedVideos[idx];
+      currentSceneIdx = -1;
+      hudCounter.textContent = `${idx + 1} / ${feedVideos.length}`;
+      revokeUrls(activeObjectUrls);
+
+      if (activeVideoItem.kind === "mp4") {
+        subtitleZone.classList.add("hidden");
+        const src = activeVideoItem.source === "idb"
+          ? (() => { const u = URL.createObjectURL(activeVideoItem.blob); activeObjectUrls.push(u); return u; })()
+          : activeVideoItem.src;
+
+        reelViewport.innerHTML = `<div class="mp4-stage"><video class="mp4-video" id="mp4Player" playsinline preload="auto" src="${src}"></video></div>`;
+        const vid = document.getElementById("mp4Player");
+        activeMediaEl = vid;
+        vid.playbackRate = settings.rate;
+        attachMediaListeners(vid);
+        updateVisuals(0);
+        if (autoplay) vid.play().catch(() => showStatus("▶ Tocá para reproducir"));
+      } else {
+        subtitleZone.classList.toggle("hidden", settings.subs === "off");
+        const scenes = (activeVideoItem.reel && activeVideoItem.reel.scenes) || [];
+        reelViewport.innerHTML = scenes.map((sc, i) => buildSceneHTML(sc, i, activeVideoItem, activeObjectUrls, i === 0)).join("");
+        audio.src = getAssetUrl(activeVideoItem, activeVideoItem.reel.audio, activeObjectUrls);
+        activeMediaEl = audio;
+        audio.playbackRate = settings.rate;
+        audio.currentTime = 0;
+        attachMediaListeners(audio);
+        updateVisuals(0);
+        if (autoplay) audio.play().catch(() => showStatus("▶ Tocá para reproducir"));
+      }
+    }
+
+    function renderPeekFor(targetIdx) {
+      revokeUrls(peekObjectUrls);
+      const entry = feedVideos[targetIdx];
+      if (!entry) return;
+      if (entry.kind === "mp4") {
+        peekViewport.innerHTML = `<div class="mp4-peek-card">
+          <div class="video-thumb-mp4" style="width:78px;height:100px;font-size:12px;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg><span>MP4</span>
+          </div>
+          <div class="scene-title" style="margin:0;">${entry.title}</div>
+        </div>`;
+      } else {
+        const firstScene = (entry.reel.scenes || [])[0];
+        peekViewport.innerHTML = firstScene ? buildSceneHTML(firstScene, 0, entry, peekObjectUrls, true) : "";
+      }
+    }
+
+    function updateVisuals(t) {
+      if (!activeVideoItem || !activeMediaEl) return;
+      const dur = (activeMediaEl.duration && isFinite(activeMediaEl.duration)) ? activeMediaEl.duration : (activeVideoItem.duration || 1);
+      if (!isScrubbing) scrubFill.style.width = `${Math.min(100, (t / dur) * 100)}%`;
+      timeMini.textContent = `${fmt(t)} / ${fmt(dur)}`;
+      if (activeVideoItem.kind === "mp4") return;
+
+      const reel = activeVideoItem.reel;
+      const scenes = reel.scenes || [];
+      let nextIdx = 0;
+      for (let i = 0; i < scenes.length; i++) if (t >= scenes[i].start) nextIdx = i;
+
+      const sceneEls = reelViewport.querySelectorAll(".scene");
+      if (nextIdx !== currentSceneIdx) {
+        sceneEls.forEach((el, i) => {
+          if (i === currentSceneIdx && i !== nextIdx) { el.classList.remove("active"); el.classList.add("exiting"); setTimeout(() => el.classList.remove("exiting"), 620); }
+          else if (i === nextIdx) { el.classList.remove("exiting"); el.classList.add("active"); }
+          else { el.classList.remove("active", "exiting"); }
+        });
+        currentSceneIdx = nextIdx;
+      }
+
+      const activeEl = sceneEls[nextIdx];
+      if (activeEl) {
+        activeEl.querySelectorAll("[data-at]").forEach(el => el.classList.toggle("show", t >= Number(el.dataset.at)));
+        activeEl.querySelectorAll("[data-dim-at]").forEach(el => el.classList.toggle("dimmed", t >= Number(el.dataset.dimAt)));
+        activeEl.querySelectorAll("[data-conv-left]").forEach(el => el.classList.toggle("converge-left", t >= Number(el.dataset.convLeft)));
+        activeEl.querySelectorAll("[data-conv-right]").forEach(el => el.classList.toggle("converge-right", t >= Number(el.dataset.convRight)));
+        activeEl.querySelectorAll("[data-hi-at]").forEach(el => el.classList.toggle("highlight", t >= Number(el.dataset.hiAt)));
+        activeEl.querySelectorAll("[data-ascend-at]").forEach(el => el.classList.toggle("ascend", t >= Number(el.dataset.ascendAt)));
+        activeEl.querySelectorAll("[data-fade-at]").forEach(el => el.classList.toggle("fade-away", t >= Number(el.dataset.fadeAt)));
+      }
+
+      const subs = reel.subtitles || [];
+      let subText = "";
+      for (let i = 0; i < subs.length; i++) {
+        if (t >= subs[i].start && t <= subs[i].end + 0.14) { subText = subs[i].text; break; }
+      }
+      if (subText && settings.subs === "on") { subtitlePill.textContent = subText; subtitlePill.classList.add("visible"); }
+      else { subtitlePill.classList.remove("visible"); }
+    }
+
+    function tick() {
+      if (!activeMediaEl) return;
+      updateVisuals(activeMediaEl.currentTime);
+      if (!activeMediaEl.paused && !activeMediaEl.ended) rafId = requestAnimationFrame(tick);
+    }
+
+    function showStatus(text) { statusPill.textContent = text; statusPill.classList.add("show"); }
+    function hideStatus() { statusPill.classList.remove("show"); }
+
+    /* =====================================================================
+       7. GESTOS 1:1 TIKTOK + IDA Y VUELTA COMPLETA POR CARPETAS
+       ===================================================================== */
+    const CARD_GAP = 14;
+    let ptrDown = false;
+    let startX = 0, startY = 0, lastX = 0, lastY = 0, lastTime = 0, startTime = 0;
+    let dragVx = 0, dragVy = 0;
+    let dragMode = null;
+    let stageH = 0;
+    let holdTimer = null;
+    let isHold2x = false;
+
+    function preparePeek(dir) {
+      stageH = reelShell.clientHeight || window.innerHeight;
+      reelCurrent.style.transition = "none";
+      reelPeek.style.transition = "none";
+      if (dir === "next") { renderPeekFor(feedIndex + 1); reelPeek.style.transform = `translateY(${stageH + CARD_GAP}px)`; }
+      else { renderPeekFor(feedIndex - 1); reelPeek.style.transform = `translateY(${-stageH - CARD_GAP}px)`; }
+      reelPeek.style.display = "block";
+    }
+
+    function cleanupDrag() {
+      reelCurrent.style.transition = "none"; reelCurrent.style.transform = "";
+      void reelCurrent.offsetWidth; reelCurrent.style.transition = "";
+      reelPeek.style.transition = "none"; reelPeek.style.transform = ""; reelPeek.style.display = "none";
+      dragMode = null;
+    }
+
+    function animateReelStep(delta) {
+      if (isTransitioning) return;
+      const target = feedIndex + delta;
+      if (target < 0 || target >= feedVideos.length) return;
+      isTransitioning = true;
+      stopActiveMedia();
+      const dir = delta > 0 ? "next" : "prev";
+      preparePeek(dir);
+      void reelPeek.offsetWidth;
+      const snapMs = 240;
+      const ease = `transform ${snapMs}ms cubic-bezier(0.22, 1, 0.36, 1)`;
+      reelCurrent.style.transition = ease;
+      reelPeek.style.transition = ease;
+      reelCurrent.style.transform = `translateY(${dir === "next" ? -stageH - CARD_GAP : stageH + CARD_GAP}px)`;
+      reelPeek.style.transform = "translateY(0)";
+      setTimeout(() => { loadVideoAt(target, true); cleanupDrag(); isTransitioning = false; }, snapMs);
+    }
+
+    function isInteractiveTarget(el) {
+      return Boolean(el.closest(".hud-btn, .scrub-zone, .settings-drawer, .drawer-backdrop"));
+    }
+
+    reelShell.addEventListener("pointerdown", (e) => {
+      if (isTransitioning || isInteractiveTarget(e.target)) return;
+      ptrDown = true; startX = lastX = e.clientX; startY = lastY = e.clientY;
+      startTime = lastTime = Date.now(); dragVx = 0; dragVy = 0; dragMode = null; isHold2x = false;
+      stageH = reelShell.clientHeight || window.innerHeight;
+
+      const rect = reelShell.getBoundingClientRect();
+      if ((e.clientX - rect.left) / rect.width >= 0.72 && activeMediaEl && !activeMediaEl.paused) {
+        holdTimer = setTimeout(() => {
+          if (ptrDown && !dragMode && activeMediaEl) { isHold2x = true; activeMediaEl.playbackRate = 2; showStatus("2× ▸▸"); }
+        }, 260);
+      }
+    });
+
+    reelShell.addEventListener("pointermove", (e) => {
+      if (!ptrDown || isHold2x) return;
+      const dx = e.clientX - startX; const dy = e.clientY - startY;
+      const now = Date.now(); const dt = Math.max(8, now - lastTime);
+      dragVx = 0.65 * ((e.clientX - lastX) / dt) + 0.35 * dragVx;
+      dragVy = 0.65 * ((e.clientY - lastY) / dt) + 0.35 * dragVy;
+      lastX = e.clientX; lastY = e.clientY; lastTime = now;
+
+      if (dragMode === null) {
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+        clearTimeout(holdTimer);
+        if (Math.abs(dx) > Math.abs(dy) * 1.25 && dx > 0) { dragMode = "home"; reelCurrent.style.transition = "none"; }
+        else if (Math.abs(dy) >= Math.abs(dx)) {
+          if (dy < 0) {
+            if (feedIndex < feedVideos.length - 1) { dragMode = "next"; preparePeek("next"); }
+            else { dragMode = "bounce-bottom"; reelCurrent.style.transition = "none"; }
+          } else {
+            if (feedIndex > 0) { dragMode = "prev"; preparePeek("prev"); }
+            else { dragMode = "bounce-top"; reelCurrent.style.transition = "none"; }
+          }
+        }
+      }
+      if (!dragMode) return;
+      if (dragMode === "next") { const y = Math.min(0, dy); reelCurrent.style.transform = `translateY(${y}px)`; reelPeek.style.transform = `translateY(${stageH + CARD_GAP + y}px)`; }
+      else if (dragMode === "prev") { const y = Math.max(0, dy); reelCurrent.style.transform = `translateY(${y}px)`; reelPeek.style.transform = `translateY(${-stageH - CARD_GAP + y}px)`; }
+      else if (dragMode === "bounce-top") { reelCurrent.style.transform = `translateY(${Math.max(0, dy) * 0.22}px)`; }
+      else if (dragMode === "bounce-bottom") { reelCurrent.style.transform = `translateY(${Math.min(0, dy) * 0.22}px)`; }
+      else if (dragMode === "home") { reelCurrent.style.transform = `translateX(${Math.max(0, dx)}px)`; }
+    });
+
+    function finishFeedPointer(e) {
+      if (!ptrDown) return;
+      ptrDown = false; clearTimeout(holdTimer);
+      if (isHold2x) { isHold2x = false; if (activeMediaEl) activeMediaEl.playbackRate = settings.rate; hideStatus(); return; }
+
+      const dx = e.clientX - startX; const dy = e.clientY - startY;
+      const snapMs = 200; const ease = `transform ${snapMs}ms cubic-bezier(0.22, 1, 0.36, 1)`;
+
+      if (!dragMode) {
+        if (Date.now() - startTime < 350 && activeMediaEl) {
+          if (activeMediaEl.ended) { activeMediaEl.currentTime = 0; activeMediaEl.play(); }
+          else if (activeMediaEl.paused) activeMediaEl.play();
+          else activeMediaEl.pause();
+        }
+        return;
+      }
+
+      if (dragMode === "home") {
+        isTransitioning = true; reelCurrent.style.transition = ease;
+        if (dx > 75 || dragVx > 0.4) {
+          reelCurrent.style.transform = "translateX(108%)";
+          setTimeout(() => { showHomeView(true); cleanupDrag(); isTransitioning = false; }, snapMs);
+        } else {
+          reelCurrent.style.transform = "translateX(0)";
+          setTimeout(() => { cleanupDrag(); isTransitioning = false; }, snapMs);
+        }
+        return;
+      }
+
+      if (dragMode === "bounce-top" || dragMode === "bounce-bottom") {
+        isTransitioning = true; reelCurrent.style.transition = ease; reelCurrent.style.transform = "translateY(0)";
+        setTimeout(() => { cleanupDrag(); isTransitioning = false; }, snapMs);
+        return;
+      }
+
+      const mode = dragMode;
+      const commitNext = mode === "next" && (-dy > stageH * 0.20 || dragVy < -0.35);
+      const commitPrev = mode === "prev" && (dy > stageH * 0.20 || dragVy > 0.35);
+      isTransitioning = true; reelCurrent.style.transition = ease; reelPeek.style.transition = ease;
+
+      if (commitNext) {
+        stopActiveMedia(); reelCurrent.style.transform = `translateY(${-stageH - CARD_GAP}px)`; reelPeek.style.transform = "translateY(0)";
+        setTimeout(() => { loadVideoAt(feedIndex + 1, true); cleanupDrag(); isTransitioning = false; }, snapMs);
+      } else if (commitPrev) {
+        stopActiveMedia(); reelCurrent.style.transform = `translateY(${stageH + CARD_GAP}px)`; reelPeek.style.transform = "translateY(0)";
+        setTimeout(() => { loadVideoAt(feedIndex - 1, true); cleanupDrag(); isTransitioning = false; }, snapMs);
+      } else {
+        reelCurrent.style.transform = "translateY(0)";
+        reelPeek.style.transform = mode === "next" ? `translateY(${stageH + CARD_GAP}px)` : `translateY(${-stageH - CARD_GAP}px)`;
+        setTimeout(() => { cleanupDrag(); isTransitioning = false; }, snapMs);
+      }
+    }
+
+    reelShell.addEventListener("pointerup", finishFeedPointer);
+    reelShell.addEventListener("pointercancel", finishFeedPointer);
+
+    let wheelLock = false;
+    reelShell.addEventListener("wheel", (e) => {
+      if (wheelLock || Math.abs(e.deltaY) < 25) return;
+      wheelLock = true; animateReelStep(e.deltaY > 0 ? 1 : -1);
+      setTimeout(() => { wheelLock = false; }, 520);
+    }, { passive: true });
+
+    // Gestos horizontales en Inicio: ida y vuelta completa (Video -> Sub -> Carpeta -> Raíz y vuelta Raíz -> Carpeta -> Sub -> Video)
+    homeView.addEventListener("dragstart", (e) => e.preventDefault());
+
+    function handleHomeSwipeEnd(dx, dy) {
+      if (isTransitioning || settingsDrawer.classList.contains("open") || modalBackdrop.classList.contains("open")) return;
+      if (Math.abs(dx) <= 50 || Math.abs(dx) <= Math.abs(dy) * 1.35) return;
+
+      if (dx > 0 && currentFolderId) {
+        animateFolderChange("back", () => {
+          forwardStack.push(currentFolderId);
+          const cur = folders.find(f => f.id === currentFolderId);
+          currentFolderId = cur ? (cur.parentId || null) : null;
+        });
+        return;
+      }
+
+      if (dx < 0) {
+        if (forwardStack.length) {
+          const nextId = forwardStack.pop();
+          if (folders.some(f => f.id === nextId)) {
+            animateFolderChange("forward", () => { currentFolderId = nextId; });
+            return;
+          }
+        }
+        if (feedVideos.length) {
+          isTransitioning = true;
+          homeView.classList.add("slide-out-left");
+          setTimeout(() => {
+            showFeedView(true);
+            homeView.classList.remove("slide-out-left");
+            isTransitioning = false;
+          }, 170);
+        }
+      }
+    }
+
+    let hTouchX = 0, hTouchY = 0;
+    homeView.addEventListener("touchstart", (e) => {
+      if (e.changedTouches && e.changedTouches[0]) { hTouchX = e.changedTouches[0].clientX; hTouchY = e.changedTouches[0].clientY; }
+    }, { passive: true });
+    homeView.addEventListener("touchend", (e) => {
+      if (!e.changedTouches || !e.changedTouches[0]) return;
+      handleHomeSwipeEnd(e.changedTouches[0].clientX - hTouchX, e.changedTouches[0].clientY - hTouchY);
+    }, { passive: true });
+
+    let hMouseDown = false, hMouseX = 0, hMouseY = 0;
+    homeView.addEventListener("mousedown", (e) => {
+      if (e.button !== 0 || e.target.closest("button, input, label")) return;
+      hMouseDown = true; hMouseX = e.clientX; hMouseY = e.clientY;
+    });
+    window.addEventListener("mouseup", (e) => {
+      if (!hMouseDown) return;
+      hMouseDown = false;
+      if (homeView.classList.contains("view-hidden")) return;
+      handleHomeSwipeEnd(e.clientX - hMouseX, e.clientY - hMouseY);
+    });
+
+    /* =====================================================================
+       8. SCRUBBING, AJUSTES, TECLADO E IMPORTACIÓN
+       ===================================================================== */
+    function seekFromClientX(clientX) {
+      if (!activeMediaEl) return;
+      const rect = scrubTrack.getBoundingClientRect();
+      const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      const dur = (activeMediaEl.duration && isFinite(activeMediaEl.duration)) ? activeMediaEl.duration : (activeVideoItem?.duration || 1);
+      const targetT = pct * dur;
+      scrubFill.style.width = `${pct * 100}%`;
+      scrubTooltip.textContent = `${fmt(targetT)} / ${fmt(dur)}`;
+      activeMediaEl.currentTime = targetT;
+      updateVisuals(targetT);
+    }
+
+    scrubZone.addEventListener("pointerdown", (e) => { e.stopPropagation(); isScrubbing = true; scrubZone.classList.add("scrubbing"); scrubZone.setPointerCapture(e.pointerId); seekFromClientX(e.clientX); });
+    scrubZone.addEventListener("pointermove", (e) => { if (!isScrubbing) return; e.stopPropagation(); seekFromClientX(e.clientX); });
+    function endScrub(e) { if (!isScrubbing) return; e.stopPropagation(); isScrubbing = false; scrubZone.classList.remove("scrubbing"); }
+    scrubZone.addEventListener("pointerup", endScrub);
+    scrubZone.addEventListener("pointercancel", endScrub);
+
+    const RATES = [1, 1.25, 1.5, 2];
+    btnSpeed.addEventListener("click", () => { settings.rate = RATES[(RATES.indexOf(settings.rate) + 1) % RATES.length]; saveSettings(); });
+
+    const drawerBackdrop = document.getElementById("drawerBackdrop");
+    const settingsDrawer = document.getElementById("settingsDrawer");
+    const openDrawer = () => { drawerBackdrop.classList.add("open"); settingsDrawer.classList.add("open"); };
+    const closeDrawer = () => { drawerBackdrop.classList.remove("open"); settingsDrawer.classList.remove("open"); };
+    document.getElementById("btnSettings").addEventListener("click", openDrawer);
+    openSettingsHome.addEventListener("click", openDrawer);
+    document.getElementById("btnCloseSettings").addEventListener("click", closeDrawer);
+    drawerBackdrop.addEventListener("click", closeDrawer);
+
+    document.querySelectorAll("[data-set-theme]").forEach(b => b.addEventListener("click", () => { settings.theme = b.dataset.setTheme; saveSettings(); }));
+    document.querySelectorAll("[data-set-subs]").forEach(b => b.addEventListener("click", () => { settings.subs = b.dataset.setSubs; saveSettings(); if (activeMediaEl) updateVisuals(activeMediaEl.currentTime); }));
+    document.querySelectorAll("[data-set-end]").forEach(b => b.addEventListener("click", () => { settings.onEnd = b.dataset.setEnd; saveSettings(); }));
+    document.querySelectorAll("[data-set-rate]").forEach(b => b.addEventListener("click", () => { settings.rate = Number(b.dataset.setRate); saveSettings(); }));
+    document.getElementById("setSubDown").addEventListener("click", () => { settings.subSize = Math.max(16, settings.subSize - 2); saveSettings(); });
+    document.getElementById("setSubUp").addEventListener("click", () => { settings.subSize = Math.min(34, settings.subSize + 2); saveSettings(); });
+
+    const fileInput = document.getElementById("fileInput");
+    fileInput.addEventListener("change", async (e) => {
+      const files = [...(e.target.files || [])];
+      if (!files.length) return;
+      let total = 0;
+      for (const f of files) {
+        try { total += await importLocalFile(f); }
+        catch (err) { showToast(`Error en ${f.name}: ${err.message}`); }
+      }
+      fileInput.value = "";
+      if (total > 0) {
+        localItems = await idbGetAll();
+        showToast(`Cargados ${total} ${total === 1 ? "video" : "videos"}`);
+        renderHome();
+      }
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (modalBackdrop.classList.contains("open")) {
+        if (e.key === "Escape") closeModal();
+        return;
+      }
+      if (feedView.classList.contains("view-hidden")) {
+        if (e.key === "ArrowLeft" && currentFolderId) {
+          animateFolderChange("back", () => {
+            forwardStack.push(currentFolderId);
+            const cur = folders.find(f => f.id === currentFolderId);
+            currentFolderId = cur ? (cur.parentId || null) : null;
+          });
+        }
+        return;
+      }
+      if (e.code === "Space" && activeMediaEl) {
+        e.preventDefault();
+        if (activeMediaEl.paused) activeMediaEl.play(); else activeMediaEl.pause();
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault(); animateReelStep(1);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault(); animateReelStep(-1);
+      } else if (e.key === "Escape") {
+        if (settingsDrawer.classList.contains("open")) closeDrawer();
+        else showHomeView(true);
+      }
+    });
+
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+
+    (async () => {
+      applySettings();
+      ingestCatalogTree();
+      try { localItems = await idbGetAll(); } catch {}
+      renderHome();
+    })();
+  </script>
+</body>
+</html>
