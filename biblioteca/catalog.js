@@ -867,6 +867,24 @@ window.REELS_CATALOG = {
               "duration": 0,
               "src": "./biblioteca/Espa%C3%B1ola/San%20Juan%20de%20la%20Cruz/03_La_cacer%C3%ADa_de_amor_de_San_Juan.mp4",
               "cover": ""
+            },
+            {
+              "kind": "mp4",
+              "id": "04_C_mo_la_Noche_Oscura_apaga_los_sentidos",
+              "title": "Cómo la Noche Oscura apaga los sentidos",
+              "subtitle": "Video MP4",
+              "duration": 0,
+              "src": "./biblioteca/Espa%C3%B1ola/San%20Juan%20de%20la%20Cruz/04_C%C3%B3mo_la_Noche_Oscura_apaga_los_sentidos.mp4",
+              "cover": ""
+            },
+            {
+              "kind": "mp4",
+              "id": "05_El_fuego_m_stico_que_hiere_pero_no_quema",
+              "title": "El fuego místico que hiere pero no quema",
+              "subtitle": "Video MP4",
+              "duration": 0,
+              "src": "./biblioteca/Espa%C3%B1ola/San%20Juan%20de%20la%20Cruz/05_El_fuego_m%C3%ADstico_que_hiere_pero_no_quema.mp4",
+              "cover": ""
             }
           ]
         }
