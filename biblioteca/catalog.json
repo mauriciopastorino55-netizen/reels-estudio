@@ -885,6 +885,33 @@
               "duration": 0,
               "src": "./biblioteca/Espa%C3%B1ola/San%20Juan%20de%20la%20Cruz/05_El_fuego_m%C3%ADstico_que_hiere_pero_no_quema.mp4",
               "cover": ""
+            },
+            {
+              "kind": "mp4",
+              "id": "06_C_mo_San_Juan_de_la_Cruz_rompe_el_velo",
+              "title": "Cómo San Juan de la Cruz rompe el velo",
+              "subtitle": "Video MP4",
+              "duration": 0,
+              "src": "./biblioteca/Espa%C3%B1ola/San%20Juan%20de%20la%20Cruz/06_C%C3%B3mo_San_Juan_de_la_Cruz_rompe_el_velo.mp4",
+              "cover": ""
+            },
+            {
+              "kind": "mp4",
+              "id": "07_El_Espejo_Oculto_en_el_C_ntico_Espiritual",
+              "title": "El Espejo Oculto en el Cántico Espiritual",
+              "subtitle": "Video MP4",
+              "duration": 0,
+              "src": "./biblioteca/Espa%C3%B1ola/San%20Juan%20de%20la%20Cruz/07_El_Espejo_Oculto_en_el_C%C3%A1ntico_Espiritual.mp4",
+              "cover": ""
+            },
+            {
+              "kind": "mp4",
+              "id": "08_La_fuga_clandestina_del_alma",
+              "title": "La fuga clandestina del alma",
+              "subtitle": "Video MP4",
+              "duration": 0,
+              "src": "./biblioteca/Espa%C3%B1ola/San%20Juan%20de%20la%20Cruz/08_La_fuga_clandestina_del_alma.mp4",
+              "cover": ""
             }
           ]
         }
