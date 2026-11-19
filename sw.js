@@ -1,4 +1,4 @@
-const CACHE_NAME = "reels-estudio-v6";
+const CACHE_NAME = "reels-estudio-v7";
 const CORE_ASSETS = [
   "./",
   "./index.html",

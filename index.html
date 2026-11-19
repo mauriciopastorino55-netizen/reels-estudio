@@ -772,13 +772,6 @@
       </div>
     </div>
     <div class="setting-row">
-      <span>Al terminar</span>
-      <div class="seg-group">
-        <button class="seg-btn" data-set-end="next">Siguiente</button>
-        <button class="seg-btn" data-set-end="loop">Repetir</button>
-      </div>
-    </div>
-    <div class="setting-row">
       <span>Velocidad base</span>
       <div class="seg-group">
         <button class="seg-btn" data-set-rate="1">1×</button>
@@ -805,7 +798,7 @@
     const IDB_NAME = "ReelsEstudioLocalDB";
     const IDB_STORE = "local_videos";
 
-    const DEFAULT_SETTINGS = { theme: "dark", subs: "on", subSize: 24, onEnd: "next", rate: 1 };
+    const DEFAULT_SETTINGS = { theme: "dark", subs: "on", subSize: 24, onEnd: "loop", rate: 1 };
     let settings = { ...DEFAULT_SETTINGS, ...(JSON.parse(localStorage.getItem(LS_SETTINGS) || "null") || {}) };
 
     let folders = JSON.parse(localStorage.getItem(LS_FOLDERS) || "null") || [];
@@ -1645,13 +1638,13 @@
     function revokeUrls(bucket) { bucket.forEach(u => URL.revokeObjectURL(u)); bucket.length = 0; }
 
     function attachMediaListeners(mediaEl) {
+      mediaEl.loop = true;
       mediaEl.onplay = () => { hideStatus(); cancelAnimationFrame(rafId); rafId = requestAnimationFrame(tick); };
       mediaEl.onpause = () => { cancelAnimationFrame(rafId); if (!mediaEl.ended && !isScrubbing && !isTransitioning) showStatus("⏸ En pausa"); };
       mediaEl.onended = () => {
         cancelAnimationFrame(rafId);
-        if (settings.onEnd === "loop") { mediaEl.currentTime = 0; mediaEl.play(); }
-        else if (feedIndex < feedVideos.length - 1) animateReelStep(1);
-        else showStatus("↻ Fin · Tocá para repetir");
+        mediaEl.currentTime = 0;
+        mediaEl.play().catch(() => {});
       };
     }
 
@@ -1703,12 +1696,10 @@
       const entry = feedVideos[targetIdx];
       if (!entry) return;
       if (entry.kind === "mp4") {
-        peekViewport.innerHTML = `<div class="mp4-peek-card">
-          <div class="video-thumb-mp4" style="width:78px;height:100px;font-size:12px;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg><span>MP4</span>
-          </div>
-          <div class="scene-title" style="margin:0;">${entry.title}</div>
-        </div>`;
+        const src = entry.source === "idb"
+          ? (() => { const u = URL.createObjectURL(entry.blob); peekObjectUrls.push(u); return u; })()
+          : entry.src;
+        peekViewport.innerHTML = `<div class="mp4-stage"><video class="mp4-video" muted playsinline preload="metadata" src="${src}#t=0.05"></video></div>`;
       } else {
         const firstScene = (entry.reel.scenes || [])[0];
         peekViewport.innerHTML = firstScene ? buildSceneHTML(firstScene, 0, entry, peekObjectUrls, true) : "";
