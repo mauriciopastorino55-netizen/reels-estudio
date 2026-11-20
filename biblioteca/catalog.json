@@ -912,6 +912,33 @@
               "duration": 0,
               "src": "./biblioteca/Espa%C3%B1ola/San%20Juan%20de%20la%20Cruz/08_La_fuga_clandestina_del_alma.mp4",
               "cover": ""
+            },
+            {
+              "kind": "mp4",
+              "id": "El_Secreto_de_la_T_rtola_en_San_Juan",
+              "title": "El Secreto de la Tórtola en San Juan",
+              "subtitle": "Video MP4",
+              "duration": 0,
+              "src": "./biblioteca/Espa%C3%B1ola/San%20Juan%20de%20la%20Cruz/El_Secreto_de_la_T%C3%B3rtola_en_San_Juan.mp4",
+              "cover": ""
+            },
+            {
+              "kind": "mp4",
+              "id": "El__xtasis_m_stico_en_el_C_ntico_espiritual",
+              "title": "El éxtasis místico en el Cántico espiritual",
+              "subtitle": "Video MP4",
+              "duration": 0,
+              "src": "./biblioteca/Espa%C3%B1ola/San%20Juan%20de%20la%20Cruz/El_%C3%A9xtasis_m%C3%ADstico_en_el_C%C3%A1ntico_espiritual.mp4",
+              "cover": ""
+            },
+            {
+              "kind": "mp4",
+              "id": "Por_qu__el_lenguaje_falla_ante_lo_divino",
+              "title": "Por qué el lenguaje falla ante lo divino",
+              "subtitle": "Video MP4",
+              "duration": 0,
+              "src": "./biblioteca/Espa%C3%B1ola/San%20Juan%20de%20la%20Cruz/Por_qu%C3%A9_el_lenguaje_falla_ante_lo_divino.mp4",
+              "cover": ""
             }
           ]
         }
